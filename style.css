@@ -1,22 +1,51 @@
 /* ==========================================================
    OOC INSTRUCTION
-   SillyTavern / iPhone friendly
+   SILLYTAVERN / IPHONE
+   ========================================================== */
+
+
+/* ==========================================================
+   BOUTON DANS LE MENU ☰
    ========================================================== */
 
 #ooc-instruction-menu-item {
     display: flex !important;
+
     align-items: center;
-    gap: 10px;
 
     width: 100%;
+    min-height: 36px;
+
     box-sizing: border-box;
 
-    cursor: pointer;
-    user-select: none;
+    padding: 5px;
 
-    transition:
-        background-color 0.15s ease,
-        opacity 0.15s ease;
+    margin: 0;
+
+    gap: 10px;
+
+    color: var(--SmartThemeBodyColor, #ffffff);
+
+    cursor: pointer;
+
+    opacity: 0.5;
+
+    border-radius: 5px;
+
+    position: static !important;
+
+    top: auto !important;
+    bottom: auto !important;
+    left: auto !important;
+    right: auto !important;
+
+    transform: none !important;
+
+    z-index: auto !important;
+}
+
+#ooc-instruction-menu-item:hover {
+    opacity: 1;
 }
 
 #ooc-instruction-menu-item i {
@@ -25,15 +54,22 @@
 
     text-align: center;
 
-    font-size: 15px;
+    pointer-events: none;
 }
 
-#ooc-instruction-menu-item:hover {
-    background: rgba(255, 255, 255, 0.08);
+#ooc-instruction-menu-item span {
+    pointer-events: none;
 }
 
-#ooc-instruction-menu-item:active {
-    opacity: 0.65;
+
+/* ==========================================================
+   SÉCURITÉ :
+   SI UNE ANCIENNE VERSION A LAISSÉ UN BOUTON EN DEHORS
+   DU MENU, ON LE CACHE.
+   ========================================================== */
+
+#options > #ooc-instruction-menu-item {
+    display: none !important;
 }
 
 
@@ -42,20 +78,37 @@
    ========================================================== */
 
 #ooc-instruction-modal {
-    position: fixed;
 
-    inset: 0;
+    position: fixed !important;
 
-    z-index: 999999;
+    top: 0 !important;
+    left: 0 !important;
 
-    display: flex;
+    width: 100vw !important;
+    height: 100dvh !important;
 
-    align-items: center;
-    justify-content: center;
+    min-height: 100dvh !important;
 
-    padding: 18px;
+    margin: 0 !important;
+    padding: 0 !important;
 
-    box-sizing: border-box;
+    box-sizing: border-box !important;
+
+    z-index: 999999 !important;
+
+    display: flex !important;
+
+    /*
+     * IMPORTANT :
+     * On ne centre PLUS verticalement.
+     * Le panneau est placé volontairement plus bas.
+     */
+
+    align-items: flex-start !important;
+
+    justify-content: center !important;
+
+    overflow: hidden !important;
 
     background: rgba(0, 0, 0, 0.72);
 
@@ -65,79 +118,130 @@
 
 
 /* ==========================================================
-   BOX
+   FENÊTRE OOC
    ========================================================== */
 
 .ooc-instruction-box {
-    width: min(560px, 100%);
 
-    max-height: calc(100dvh - 36px);
+    position: relative !important;
+
+    width: min(560px, calc(100vw - 24px)) !important;
+
+    /*
+     * ESPACE EN HAUT :
+     * empêche la fenêtre de se retrouver collée
+     * ou coupée par la barre iPhone.
+     */
+
+    margin-top:
+        max(
+            70px,
+            calc(
+                env(safe-area-inset-top) + 50px
+            )
+        ) !important;
+
+    margin-left: auto !important;
+    margin-right: auto !important;
+    margin-bottom: 20px !important;
+
+    max-height:
+        calc(
+            100dvh - 110px
+        ) !important;
 
     display: flex;
-    flex-direction: column;
 
-    overflow: hidden;
+    flex-direction: column;
 
     box-sizing: border-box;
 
+    overflow: hidden;
+
     background: #111111;
 
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    border:
+        1px solid
+        rgba(255, 255, 255, 0.12);
 
     border-radius: 16px;
 
+    color: #f5f5f5;
+
     box-shadow:
-        0 20px 60px rgba(0, 0, 0, 0.55);
+        0 20px 60px
+        rgba(0, 0, 0, 0.6);
+}
+
+
+/* ==========================================================
+   TITRE
+   ========================================================== */
+
+.ooc-instruction-header {
+
+    flex-shrink: 0;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    padding:
+        14px 16px;
+
+    border-bottom:
+        1px solid
+        rgba(255,255,255,0.08);
+}
+
+.ooc-instruction-title {
+
+    font-size: 17px;
+
+    font-weight: 600;
 
     color: #f5f5f5;
 }
 
 
 /* ==========================================================
-   HEADER
+   BOUTON X
    ========================================================== */
 
-.ooc-instruction-header {
-    display: flex;
-
-    align-items: center;
-    justify-content: space-between;
-
-    padding: 15px 16px 12px;
-
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.ooc-instruction-title {
-    font-size: 17px;
-
-    font-weight: 600;
-
-    letter-spacing: -0.2px;
-}
-
 .ooc-instruction-close {
-    width: 34px;
-    height: 34px;
+
+    width: 36px;
+    height: 36px;
+
+    flex-shrink: 0;
 
     padding: 0;
 
     border: 0;
+
     border-radius: 50%;
 
     background: transparent;
 
     color: #aaa;
 
-    font-size: 25px;
-    line-height: 34px;
+    font-size: 27px;
+
+    line-height: 36px;
+
+    text-align: center;
 
     cursor: pointer;
 }
 
 .ooc-instruction-close:hover {
-    background: rgba(255, 255, 255, 0.08);
-    color: white;
+
+    background:
+        rgba(255,255,255,0.08);
+
+    color: #fff;
 }
 
 
@@ -146,7 +250,11 @@
    ========================================================== */
 
 .ooc-instruction-description {
-    padding: 12px 16px 6px;
+
+    flex-shrink: 0;
+
+    padding:
+        12px 16px 6px;
 
     color: #999;
 
@@ -161,12 +269,18 @@
    ========================================================== */
 
 #ooc-instruction-textarea {
-    width: calc(100% - 32px);
 
-    min-height: 180px;
-    max-height: 45dvh;
+    display: block;
 
-    margin: 10px 16px 14px;
+    width:
+        calc(100% - 32px) !important;
+
+    min-height: 150px;
+
+    max-height: 38dvh;
+
+    margin:
+        10px 16px 14px !important;
 
     padding: 13px;
 
@@ -174,7 +288,9 @@
 
     resize: vertical;
 
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    border:
+        1px solid
+        rgba(255,255,255,0.12);
 
     border-radius: 12px;
 
@@ -191,7 +307,7 @@
         "SF Pro Text",
         sans-serif;
 
-    font-size: 15px;
+    font-size: 16px;
 
     line-height: 1.5;
 
@@ -199,10 +315,13 @@
 }
 
 #ooc-instruction-textarea:focus {
-    border-color: rgba(255, 255, 255, 0.28);
+
+    border-color:
+        rgba(255,255,255,0.3);
 }
 
 #ooc-instruction-textarea::placeholder {
+
     color: #666;
 }
 
@@ -212,21 +331,34 @@
    ========================================================== */
 
 .ooc-instruction-footer {
+
+    flex-shrink: 0;
+
     display: flex;
 
     align-items: center;
 
     gap: 8px;
 
-    padding: 12px 16px 16px;
+    padding:
+        12px 16px 16px;
 
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    border-top:
+        1px solid
+        rgba(255,255,255,0.08);
 }
 
-.ooc-instruction-footer button {
-    min-height: 40px;
 
-    padding: 0 15px;
+/* ==========================================================
+   BOUTONS
+   ========================================================== */
+
+.ooc-instruction-footer button {
+
+    min-height: 42px;
+
+    padding:
+        0 14px;
 
     border: 0;
 
@@ -242,22 +374,10 @@
     font-size: 14px;
 
     cursor: pointer;
-
-    transition:
-        opacity 0.15s ease,
-        background-color 0.15s ease;
 }
-
-.ooc-instruction-footer button:active {
-    opacity: 0.65;
-}
-
-
-/* ==========================================================
-   CLEAR
-   ========================================================== */
 
 .ooc-instruction-clear {
+
     margin-right: auto;
 
     background: transparent;
@@ -265,42 +385,20 @@
     color: #999;
 }
 
-.ooc-instruction-clear:hover {
-    background: rgba(255, 255, 255, 0.06);
-
-    color: #ddd;
-}
-
-
-/* ==========================================================
-   CANCEL
-   ========================================================== */
-
 .ooc-instruction-cancel {
-    background: #242424;
+
+    background: #292929;
 
     color: #ddd;
 }
-
-.ooc-instruction-cancel:hover {
-    background: #303030;
-}
-
-
-/* ==========================================================
-   SAVE
-   ========================================================== */
 
 .ooc-instruction-save {
+
     background: #f5f5f5;
 
     color: #000;
 
     font-weight: 600;
-}
-
-.ooc-instruction-save:hover {
-    background: #ffffff;
 }
 
 
@@ -311,60 +409,94 @@
 @media (max-width: 600px) {
 
     #ooc-instruction-modal {
-        align-items: flex-end;
+
+        /*
+         * SUR IPHONE :
+         * fenêtre descendue sous la barre supérieure.
+         */
+
+        align-items: flex-start !important;
 
         padding:
-            10px
-            10px
-            max(10px, env(safe-area-inset-bottom));
+            0 10px
+            env(safe-area-inset-bottom) 10px !important;
     }
+
 
     .ooc-instruction-box {
-        width: 100%;
 
-        max-height: 88dvh;
+        width:
+            calc(100vw - 20px) !important;
 
-        border-radius: 18px 18px 12px 12px;
+        /*
+         * C'EST CETTE VALEUR QUI ÉVITE
+         * QUE LE HAUT SOIT COUPÉ.
+         */
+
+        margin-top:
+            max(
+                75px,
+                calc(
+                    env(safe-area-inset-top) + 55px
+                )
+            ) !important;
+
+        max-height:
+            calc(
+                100dvh - 105px
+            ) !important;
+
+        border-radius: 17px;
     }
 
-    #ooc-instruction-textarea {
-        min-height: 170px;
 
-        max-height: 42dvh;
+    #ooc-instruction-textarea {
+
+        min-height: 140px;
+
+        max-height: 35dvh;
 
         font-size: 16px;
     }
 
+
     .ooc-instruction-footer {
+
         padding-bottom:
             max(
                 14px,
                 env(safe-area-inset-bottom)
             );
     }
-
-    .ooc-instruction-footer button {
-        min-height: 44px;
-
-        padding-left: 14px;
-        padding-right: 14px;
-    }
 }
 
 
 /* ==========================================================
-   VERY SMALL SCREENS
+   PETIT IPHONE
    ========================================================== */
 
 @media (max-width: 380px) {
 
+    .ooc-instruction-box {
+
+        margin-top:
+            max(
+                65px,
+                calc(
+                    env(safe-area-inset-top) + 45px
+                )
+            ) !important;
+    }
+
     .ooc-instruction-footer {
+
         gap: 5px;
     }
 
     .ooc-instruction-footer button {
-        padding-left: 10px;
-        padding-right: 10px;
+
+        padding:
+            0 10px;
 
         font-size: 13px;
     }

@@ -1,882 +1,398 @@
-import {
-    extension_prompt_types,
-    extension_prompt_roles,
-    setExtensionPrompt,
-    getCurrentChatId,
-} from '../../../script.js';
+const MODULE_NAME = 'oocinstruction';
 
-import {
-    extension_settings,
-    saveSettingsDebounced,
-} from '../../extensions.js';
-
-const MODULE = 'oocinstruction';
-
-if (!extension_settings[MODULE]) {
-    extension_settings[MODULE] = {
-        enabled: true,
-        instruction: '',
-        persistent: true,
-    };
-}
-
-const settings = extension_settings[MODULE];
-
+let context = null;
+let initialized = false;
 
 /* ==========================================================
-   CHAT STORAGE
+   CONTEXT
    ========================================================== */
 
-function getStorageKey() {
-    const chatId =
-        typeof getCurrentChatId === 'function'
-            ? getCurrentChatId()
-            : 'global';
-
-    return `oocinstruction_${chatId || 'global'}`;
-}
-
-
-function loadChat() {
-
+function getSTContext() {
     try {
-
-        const saved = JSON.parse(
-            localStorage.getItem(
-                getStorageKey()
-            ) || 'null'
-        );
-
-        if (saved) {
-
-            settings.instruction =
-                saved.instruction || '';
-
-            settings.persistent =
-                saved.persistent !== false;
-
+        if (!window.SillyTavern || typeof window.SillyTavern.getContext !== 'function') {
+            console.error('[OOC Instruction] SillyTavern.getContext() unavailable.');
+            return null;
         }
 
+        return window.SillyTavern.getContext();
     } catch (error) {
-
-        console.warn(
-            '[OOC Instruction] Could not load chat settings.',
-            error
-        );
-
+        console.error('[OOC Instruction] Failed to get SillyTavern context:', error);
+        return null;
     }
-
-    updatePrompt();
-
 }
-
 
 /* ==========================================================
-   SAVE
+   CHAT METADATA
    ========================================================== */
 
-function saveChat() {
-
+function getInstruction() {
     try {
+        const ctx = getSTContext();
 
-        localStorage.setItem(
-            getStorageKey(),
-            JSON.stringify({
-                instruction:
-                    settings.instruction,
+        if (!ctx || !ctx.chatMetadata) {
+            return '';
+        }
 
-                persistent:
-                    settings.persistent,
-            })
-        );
-
+        return ctx.chatMetadata.ooc_instruction || '';
     } catch (error) {
-
-        console.warn(
-            '[OOC Instruction] Could not save chat settings.',
-            error
-        );
-
+        console.error('[OOC Instruction] Failed reading instruction:', error);
+        return '';
     }
-
-    saveSettingsDebounced();
-
 }
 
+async function saveInstruction(value) {
+    try {
+        const ctx = getSTContext();
+
+        if (!ctx || !ctx.chatMetadata) {
+            return;
+        }
+
+        ctx.chatMetadata.ooc_instruction = value;
+
+        if (typeof ctx.saveMetadata === 'function') {
+            await ctx.saveMetadata();
+        }
+    } catch (error) {
+        console.error('[OOC Instruction] Failed saving instruction:', error);
+    }
+}
 
 /* ==========================================================
    PROMPT INJECTION
    ========================================================== */
 
 function updatePrompt() {
+    try {
+        const ctx = getSTContext();
 
-    const instruction =
-        String(
-            settings.instruction || ''
-        ).trim();
+        if (!ctx || typeof ctx.setExtensionPrompt !== 'function') {
+            console.error('[OOC Instruction] setExtensionPrompt() unavailable.');
+            return;
+        }
 
+        const instruction = getInstruction().trim();
 
-    if (
-        !settings.enabled ||
-        !instruction
-    ) {
+        const prompt = instruction
+            ? `[OOC INSTRUCTION]\n${instruction}\n[END OOC INSTRUCTION]`
+            : '';
 
-        setExtensionPrompt(
-            MODULE,
-            '',
-            extension_prompt_types.IN_PROMPT,
-            0,
-            false,
-            extension_prompt_roles.SYSTEM
-        );
+        const types = ctx.extension_prompt_types || {};
+        const roles = ctx.extension_prompt_roles || {};
 
-        return;
+        const position =
+            types.IN_PROMPT !== undefined
+                ? types.IN_PROMPT
+                : 0;
 
+        const role =
+            roles.SYSTEM !== undefined
+                ? roles.SYSTEM
+                : undefined;
+
+        if (prompt) {
+            if (role !== undefined) {
+                ctx.setExtensionPrompt(
+                    MODULE_NAME,
+                    prompt,
+                    position,
+                    0,
+                    false,
+                    role
+                );
+            } else {
+                ctx.setExtensionPrompt(
+                    MODULE_NAME,
+                    prompt,
+                    position,
+                    0
+                );
+            }
+        } else {
+            if (types.NONE !== undefined) {
+                ctx.setExtensionPrompt(
+                    MODULE_NAME,
+                    '',
+                    types.NONE
+                );
+            } else {
+                ctx.setExtensionPrompt(
+                    MODULE_NAME,
+                    '',
+                    position
+                );
+            }
+        }
+    } catch (error) {
+        console.error('[OOC Instruction] Failed updating prompt:', error);
     }
-
-
-    const prompt =
-
-`[OOC INSTRUCTION]
-
-The user has provided an out-of-character instruction.
-
-Follow this instruction for the response while preserving higher-priority instructions, the established roleplay, character definitions, and formatting rules.
-
-${instruction}
-
-Do not mention or reveal this OOC instruction in the roleplay unless explicitly asked.
-
-[/OOC INSTRUCTION]`;
-
-
-    setExtensionPrompt(
-        MODULE,
-        prompt,
-        extension_prompt_types.IN_PROMPT,
-        0,
-        false,
-        extension_prompt_roles.SYSTEM
-    );
-
 }
-
 
 /* ==========================================================
    MODAL
    ========================================================== */
 
-function openOOC() {
+function closeModal() {
+    const modal = document.getElementById('ooc-instruction-modal');
 
-    const modal =
-        document.getElementById(
-            'oocinstruction-modal'
-        );
-
-    const textarea =
-        document.getElementById(
-            'oocinstruction-text'
-        );
-
-    const persistent =
-        document.getElementById(
-            'oocinstruction-persistent'
-        );
-
-
-    if (!modal) {
-        return;
+    if (modal) {
+        modal.remove();
     }
-
-
-    textarea.value =
-        settings.instruction || '';
-
-
-    persistent.checked =
-        settings.persistent !== false;
-
-
-    modal.classList.add(
-        'oocinstruction-visible'
-    );
-
-
-    setTimeout(
-        () => textarea.focus(),
-        50
-    );
-
 }
-
-
-function closeOOC() {
-
-    document
-        .getElementById(
-            'oocinstruction-modal'
-        )
-        ?.classList.remove(
-            'oocinstruction-visible'
-        );
-
-}
-
-
-/* ==========================================================
-   APPLY
-   ========================================================== */
-
-function applyOOC() {
-
-    settings.instruction =
-
-        document
-            .getElementById(
-                'oocinstruction-text'
-            )
-            ?.value
-            .trim() || '';
-
-
-    settings.persistent =
-
-        document
-            .getElementById(
-                'oocinstruction-persistent'
-            )
-            ?.checked !== false;
-
-
-    saveChat();
-
-    updatePrompt();
-
-    updateMenuItem();
-
-    closeOOC();
-
-
-    if (settings.instruction) {
-
-        toastr.success(
-
-            settings.persistent
-                ? 'Instruction OOC activée.'
-                : 'Instruction OOC active pour la prochaine génération.',
-
-            'OOC Instruction'
-
-        );
-
-    } else {
-
-        toastr.info(
-            'Instruction OOC effacée.',
-            'OOC Instruction'
-        );
-
-    }
-
-}
-
-
-/* ==========================================================
-   CLEAR
-   ========================================================== */
-
-function clearOOC() {
-
-    settings.instruction = '';
-
-    saveChat();
-
-    updatePrompt();
-
-    updateMenuItem();
-
-    closeOOC();
-
-
-    toastr.info(
-        'Instruction OOC effacée.',
-        'OOC Instruction'
-    );
-
-}
-
-
-/* ==========================================================
-   CREATE MODAL
-   ========================================================== */
 
 function createModal() {
-
-    if (
-        document.getElementById(
-            'oocinstruction-modal'
-        )
-    ) {
-
-        return;
-
-    }
-
-
-    const modal =
-        document.createElement(
-            'div'
-        );
-
-
-    modal.id =
-        'oocinstruction-modal';
-
-
-    modal.className =
-        'oocinstruction-modal';
-
-
-    modal.innerHTML = `
-
-        <div
-            class="oocinstruction-backdrop">
-        </div>
-
-
-        <div
-            class="oocinstruction-box">
-
-
-            <div
-                class="oocinstruction-title">
-
-                <span>
-                    OOC / Instruction
-                </span>
-
-
-                <button
-                    id="oocinstruction-close"
-                    type="button">
-
-                    ×
-
-                </button>
-
-            </div>
-
-
-            <div
-                class="oocinstruction-description">
-
-                Donne une directive directement au bot
-                sans créer de message dans le RP.
-
-            </div>
-
-
-            <textarea
-                id="oocinstruction-text"
-                placeholder="Exemple :
-
-Ne joue jamais mon personnage.
-Fais parler uniquement les personnages secondaires.
-Fais avancer la scène.
-Respecte le format du RP.
-Ne répète pas les derniers messages."
-            ></textarea>
-
-
-            <label
-                class="oocinstruction-persistent">
-
-                <input
-                    id="oocinstruction-persistent"
-                    type="checkbox"
-                    checked>
-
-                <span>
-                    Garder cette instruction active
-                </span>
-
-            </label>
-
-
-            <div
-                class="oocinstruction-buttons">
-
-
-                <button
-                    id="oocinstruction-clear"
-                    type="button">
-
-                    Effacer
-
-                </button>
-
-
-                <button
-                    id="oocinstruction-apply"
-                    type="button">
-
-                    Appliquer
-
-                </button>
-
-
-            </div>
-
-
-        </div>
-
-    `;
-
-
-    document.body.appendChild(
-        modal
-    );
-
-
-    document
-        .getElementById(
-            'oocinstruction-close'
-        )
-        .addEventListener(
-            'click',
-            closeOOC
-        );
-
-
-    document
-        .querySelector(
-            '.oocinstruction-backdrop'
-        )
-        .addEventListener(
-            'click',
-            closeOOC
-        );
-
-
-    document
-        .getElementById(
-            'oocinstruction-apply'
-        )
-        .addEventListener(
-            'click',
-            applyOOC
-        );
-
-
-    document
-        .getElementById(
-            'oocinstruction-clear'
-        )
-        .addEventListener(
-            'click',
-            clearOOC
-        );
-
-
-    document
-        .getElementById(
-            'oocinstruction-text'
-        )
-        .addEventListener(
-            'keydown',
-            event => {
-
-                if (
-                    (
-                        event.ctrlKey ||
-                        event.metaKey
-                    ) &&
-                    event.key === 'Enter'
-                ) {
-
-                    event.preventDefault();
-
-                    applyOOC();
-
-                }
-
-
-                if (
-                    event.key === 'Escape'
-                ) {
-
-                    event.preventDefault();
-
-                    closeOOC();
-
-                }
-
-            }
-        );
-
-}
-
-
-/* ==========================================================
-   FIND MENU
-   ========================================================== */
-
-function findOptionsMenu() {
-
-    const selectors = [
-
-        '#options',
-
-        '.options-content',
-
-        '#chat_options',
-
-        '#chat_menu',
-
-        '.chat-menu',
-
-    ];
-
-
-    for (
-        const selector of selectors
-    ) {
-
-        const element =
-            document.querySelector(
-                selector
-            );
-
-
-        if (element) {
-
-            return element;
-
+    closeModal();
+
+    const overlay = document.createElement('div');
+    overlay.id = 'ooc-instruction-modal';
+
+    const box = document.createElement('div');
+    box.className = 'ooc-instruction-box';
+
+    const header = document.createElement('div');
+    header.className = 'ooc-instruction-header';
+
+    const title = document.createElement('div');
+    title.className = 'ooc-instruction-title';
+    title.textContent = 'OOC Instruction';
+
+    const close = document.createElement('button');
+    close.className = 'ooc-instruction-close';
+    close.type = 'button';
+    close.textContent = '×';
+
+    close.addEventListener('click', closeModal);
+
+    header.appendChild(title);
+    header.appendChild(close);
+
+    const description = document.createElement('div');
+    description.className = 'ooc-instruction-description';
+    description.textContent =
+        'Instruction envoyée au modèle sans apparaître comme un message RP.';
+
+    const textarea = document.createElement('textarea');
+    textarea.id = 'ooc-instruction-textarea';
+    textarea.placeholder =
+        'Exemple : Ne joue jamais mon personnage. Décris davantage les réactions des autres personnages.';
+    textarea.value = getInstruction();
+
+    const footer = document.createElement('div');
+    footer.className = 'ooc-instruction-footer';
+
+    const clearButton = document.createElement('button');
+    clearButton.type = 'button';
+    clearButton.className = 'ooc-instruction-clear';
+    clearButton.textContent = 'Effacer';
+
+    clearButton.addEventListener('click', async () => {
+        textarea.value = '';
+        await saveInstruction('');
+        updatePrompt();
+    });
+
+    const cancelButton = document.createElement('button');
+    cancelButton.type = 'button';
+    cancelButton.className = 'ooc-instruction-cancel';
+    cancelButton.textContent = 'Annuler';
+
+    cancelButton.addEventListener('click', closeModal);
+
+    const saveButton = document.createElement('button');
+    saveButton.type = 'button';
+    saveButton.className = 'ooc-instruction-save';
+    saveButton.textContent = 'Enregistrer';
+
+    saveButton.addEventListener('click', async () => {
+        await saveInstruction(textarea.value);
+        updatePrompt();
+        closeModal();
+    });
+
+    footer.appendChild(clearButton);
+    footer.appendChild(cancelButton);
+    footer.appendChild(saveButton);
+
+    box.appendChild(header);
+    box.appendChild(description);
+    box.appendChild(textarea);
+    box.appendChild(footer);
+
+    overlay.appendChild(box);
+
+    overlay.addEventListener('click', (event) => {
+        if (event.target === overlay) {
+            closeModal();
         }
+    });
 
-    }
+    document.body.appendChild(overlay);
 
-
-    return null;
-
-}
-
-
-/* ==========================================================
-   FIND REGENERATE
-   ========================================================== */
-
-function findRegenerateItem(
-    container
-) {
-
-    if (!container) {
-        return null;
-    }
-
-
-    const elements =
-        container.querySelectorAll(
-            '.menu_button, [role="menuitem"], button, a, li'
+    setTimeout(() => {
+        textarea.focus();
+        textarea.setSelectionRange(
+            textarea.value.length,
+            textarea.value.length
         );
-
-
-    for (
-        const element of elements
-    ) {
-
-        const text =
-
-            (
-                element.textContent ||
-                ''
-            )
-                .replace(
-                    /\s+/g,
-                    ' '
-                )
-                .trim()
-                .toLowerCase();
-
-
-        if (
-            text === 'régénérer' ||
-            text === 'regenerate'
-        ) {
-
-            return element;
-
-        }
-
-    }
-
-
-    return null;
-
+    }, 50);
 }
 
-
 /* ==========================================================
-   CREATE MENU ITEM
+   MENU BUTTON
    ========================================================== */
 
-function createMenuItem() {
-
-    const item =
-        document.createElement(
-            'div'
-        );
-
-
-    item.id =
-        'oocinstruction-menu-item';
-
-
-    item.className =
-        'menu_button oocinstruction-menu-item';
-
-
-    item.setAttribute(
-        'role',
-        'menuitem'
-    );
-
-
-    item.innerHTML = `
-
-        <i
-            class="fa-solid fa-comment-dots fa-fw">
-        </i>
-
-        <span>
-            OOC Instruction
-        </span>
-
-    `;
-
-
-    item.addEventListener(
-        'click',
-        event => {
-
-            event.preventDefault();
-
-            event.stopPropagation();
-
-            openOOC();
-
-        }
-    );
-
-
-    return item;
-
-}
-
-
-/* ==========================================================
-   INSTALL MENU ITEM
-   ========================================================== */
-
-function installMenuItem() {
-
-    if (
-        document.getElementById(
-            'oocinstruction-menu-item'
-        )
-    ) {
-
-        updateMenuItem();
-
+function createMenuButton() {
+    if (document.getElementById('ooc-instruction-menu-item')) {
         return true;
-
     }
 
+    /*
+     * SillyTavern's hamburger/options menu.
+     * We search several possible containers so the extension
+     * remains compatible with different ST versions.
+     */
 
-    const container =
-        findOptionsMenu();
+    const menu =
+        document.querySelector('#options') ||
+        document.querySelector('#options_menu') ||
+        document.querySelector('.options-content') ||
+        document.querySelector('#chat_options');
 
-
-    if (!container) {
-
+    if (!menu) {
         return false;
-
     }
 
+    const button = document.createElement('div');
 
-    const item =
-        createMenuItem();
+    button.id = 'ooc-instruction-menu-item';
+    button.className = 'menu_button ooc-instruction-menu-item';
 
+    button.setAttribute('role', 'button');
+    button.setAttribute('tabindex', '0');
 
+    button.innerHTML = `
+        <i class="fa-solid fa-comment-dots"></i>
+        <span>OOC Instruction</span>
+    `;
+
+    button.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        createModal();
+    });
+
+    button.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            createModal();
+        }
+    });
+
+    /*
+     * Try to place it near the other chat options.
+     */
     const regenerate =
-        findRegenerateItem(
-            container
-        );
+        menu.querySelector('#option_regenerate') ||
+        menu.querySelector('[id*="regenerate"]');
 
-
-    if (
-        regenerate &&
-        regenerate.parentNode
-    ) {
-
-        regenerate.parentNode.insertBefore(
-            item,
-            regenerate
-        );
-
+    if (regenerate && regenerate.parentElement === menu) {
+        menu.insertBefore(button, regenerate);
     } else {
-
-        container.appendChild(
-            item
-        );
-
+        menu.appendChild(button);
     }
-
-
-    updateMenuItem();
 
     return true;
-
 }
-
-
-/* ==========================================================
-   MENU ACTIVE STATE
-   ========================================================== */
-
-function updateMenuItem() {
-
-    const item =
-        document.getElementById(
-            'oocinstruction-menu-item'
-        );
-
-
-    if (!item) {
-        return;
-    }
-
-
-    item.classList.toggle(
-
-        'oocinstruction-active',
-
-        !!String(
-            settings.instruction || ''
-        ).trim()
-
-    );
-
-}
-
 
 /* ==========================================================
    MENU OBSERVER
    ========================================================== */
 
-function watchMenu() {
-
-    installMenuItem();
-
-
-    const observer =
-        new MutationObserver(
-            () => {
-
-                if (
-                    !document.getElementById(
-                        'oocinstruction-menu-item'
-                    )
-                ) {
-
-                    installMenuItem();
-
-                }
-
-            }
-        );
-
-
-    observer.observe(
-        document.body,
-        {
-            childList: true,
-            subtree: true,
-        }
-    );
-
-}
-
-
-/* ==========================================================
-   INIT
-   ========================================================== */
-
-function init() {
-
-    try {
-
-        createModal();
-
-        loadChat();
-
-        watchMenu();
-
-
-        window.addEventListener(
-            'hashchange',
-            () => {
-
-                setTimeout(
-                    loadChat,
-                    50
-                );
-
-                setTimeout(
-                    installMenuItem,
-                    100
-                );
-
-            }
-        );
-
-
-        console.log(
-            '[OOC Instruction] v2.0.0 loaded.'
-        );
-
-
-    } catch (error) {
-
-        console.error(
-            '[OOC Instruction] Initialization error:',
-            error
-        );
-
+function installMenuObserver() {
+    if (window.__OOC_INSTRUCTION_OBSERVER__) {
+        return;
     }
 
+    const observer = new MutationObserver(() => {
+        createMenuButton();
+    });
+
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true
+    });
+
+    window.__OOC_INSTRUCTION_OBSERVER__ = observer;
+
+    createMenuButton();
 }
 
-
 /* ==========================================================
-   START
+   CHAT CHANGE
    ========================================================== */
 
-if (
-    document.readyState ===
-    'loading'
-) {
+function installChatChangeListener() {
+    try {
+        const ctx = getSTContext();
 
-    document.addEventListener(
-        'DOMContentLoaded',
-        init,
-        {
-            once: true
+        if (!ctx || !ctx.eventSource || !ctx.event_types) {
+            return;
         }
-    );
 
-} else {
+        const chatChanged =
+            ctx.event_types.CHAT_CHANGED ||
+            'chat_changed';
 
-    init();
+        if (typeof ctx.eventSource.on === 'function') {
+            ctx.eventSource.on(chatChanged, () => {
+                setTimeout(() => {
+                    updatePrompt();
+                }, 50);
+            });
+        }
+    } catch (error) {
+        console.warn(
+            '[OOC Instruction] Could not install chat change listener:',
+            error
+        );
+    }
+}
 
+/* ==========================================================
+   INITIALIZATION
+   ========================================================== */
+
+function initialize() {
+    if (initialized) {
+        return;
+    }
+
+    initialized = true;
+
+    context = getSTContext();
+
+    if (!context) {
+        initialized = false;
+        console.error('[OOC Instruction] SillyTavern context not ready.');
+        return;
+    }
+
+    installMenuObserver();
+    installChatChangeListener();
+    updatePrompt();
+
+    console.log('[OOC Instruction] Loaded successfully.');
+}
+
+/* ==========================================================
+   SILLYTAVERN LIFECYCLE
+   ========================================================== */
+
+export function onActivate() {
+    try {
+        initialize();
+    } catch (error) {
+        console.error('[OOC Instruction] Activation error:', error);
+    }
 }

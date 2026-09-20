@@ -6,6 +6,6 @@
     "js": "index.js",
     "css": "style.css",
     "author": "Hydra",
-    "version": "1.2.0",
-    "homePage": "https://github.com/TON-PSEUDO/oocinstruction"
+    "version": "1.3.0",
+    "auto_update": false
 }

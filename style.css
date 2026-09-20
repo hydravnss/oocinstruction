@@ -1,37 +1,39 @@
 /* ==========================================================
    OOC INSTRUCTION
+   SillyTavern / iPhone friendly
    ========================================================== */
 
-.oocinstruction-menu-item {
-
+#ooc-instruction-menu-item {
     display: flex !important;
+    align-items: center;
+    gap: 10px;
 
-    align-items: center !important;
+    width: 100%;
+    box-sizing: border-box;
 
-    gap: 14px !important;
+    cursor: pointer;
+    user-select: none;
 
-    cursor: pointer !important;
-
-    user-select: none !important;
-
+    transition:
+        background-color 0.15s ease,
+        opacity 0.15s ease;
 }
 
+#ooc-instruction-menu-item i {
+    width: 20px;
+    min-width: 20px;
 
-.oocinstruction-menu-item i {
+    text-align: center;
 
-    width: 24px !important;
-
-    min-width: 24px !important;
-
-    text-align: center !important;
-
+    font-size: 15px;
 }
 
+#ooc-instruction-menu-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
 
-.oocinstruction-menu-item.oocinstruction-active {
-
-    color: #fff !important;
-
+#ooc-instruction-menu-item:active {
+    opacity: 0.65;
 }
 
 
@@ -39,46 +41,26 @@
    MODAL
    ========================================================== */
 
-.oocinstruction-modal {
+#ooc-instruction-modal {
+    position: fixed;
 
-    position: fixed !important;
+    inset: 0;
 
-    inset: 0 !important;
+    z-index: 999999;
 
-    z-index: 1000000 !important;
+    display: flex;
 
-    display: none;
+    align-items: center;
+    justify-content: center;
 
-    align-items: center !important;
+    padding: 18px;
 
-    justify-content: center !important;
+    box-sizing: border-box;
 
-    padding: 16px !important;
+    background: rgba(0, 0, 0, 0.72);
 
-    box-sizing: border-box !important;
-
-}
-
-
-.oocinstruction-modal.oocinstruction-visible {
-
-    display: flex !important;
-
-}
-
-
-.oocinstruction-backdrop {
-
-    position: absolute !important;
-
-    inset: 0 !important;
-
-    background:
-        rgba(0, 0, 0, .78) !important;
-
-    backdrop-filter:
-        blur(5px);
-
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
 }
 
 
@@ -86,76 +68,76 @@
    BOX
    ========================================================== */
 
-.oocinstruction-box {
+.ooc-instruction-box {
+    width: min(560px, 100%);
 
-    position: relative !important;
+    max-height: calc(100dvh - 36px);
 
-    z-index: 2 !important;
+    display: flex;
+    flex-direction: column;
 
-    width:
-        min(680px, 100%) !important;
+    overflow: hidden;
 
-    max-height: 90vh !important;
+    box-sizing: border-box;
 
-    overflow-y: auto !important;
+    background: #111111;
 
-    padding: 16px !important;
+    border: 1px solid rgba(255, 255, 255, 0.12);
 
-    box-sizing: border-box !important;
-
-    background: #111 !important;
-
-    border:
-        1px solid #333 !important;
-
-    border-radius: 16px !important;
+    border-radius: 16px;
 
     box-shadow:
-        0 18px 60px
-        rgba(0,0,0,.75) !important;
+        0 20px 60px rgba(0, 0, 0, 0.55);
 
+    color: #f5f5f5;
 }
 
 
 /* ==========================================================
-   TITLE
+   HEADER
    ========================================================== */
 
-.oocinstruction-title {
+.ooc-instruction-header {
+    display: flex;
 
-    display: flex !important;
+    align-items: center;
+    justify-content: space-between;
 
-    align-items: center !important;
+    padding: 15px 16px 12px;
 
-    justify-content: space-between !important;
-
-    color: #f5f5f5 !important;
-
-    font-size: 20px !important;
-
-    font-weight: 800 !important;
-
-    margin-bottom: 8px !important;
-
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
+.ooc-instruction-title {
+    font-size: 17px;
 
-#oocinstruction-close {
+    font-weight: 600;
 
-    width: 38px !important;
+    letter-spacing: -0.2px;
+}
 
-    height: 38px !important;
+.ooc-instruction-close {
+    width: 34px;
+    height: 34px;
 
-    border: 0 !important;
+    padding: 0;
 
-    border-radius: 50% !important;
+    border: 0;
+    border-radius: 50%;
 
-    background: #272727 !important;
+    background: transparent;
 
-    color: #fff !important;
+    color: #aaa;
 
-    font-size: 26px !important;
+    font-size: 25px;
+    line-height: 34px;
 
+    cursor: pointer;
+}
+
+.ooc-instruction-close:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: white;
 }
 
 
@@ -163,16 +145,14 @@
    DESCRIPTION
    ========================================================== */
 
-.oocinstruction-description {
+.ooc-instruction-description {
+    padding: 12px 16px 6px;
 
-    color: #aaa !important;
+    color: #999;
 
-    font-size: 13px !important;
+    font-size: 13px;
 
-    line-height: 1.45 !important;
-
-    margin-bottom: 12px !important;
-
+    line-height: 1.4;
 }
 
 
@@ -180,135 +160,147 @@
    TEXTAREA
    ========================================================== */
 
-#oocinstruction-text {
+#ooc-instruction-textarea {
+    width: calc(100% - 32px);
 
-    width: 100% !important;
+    min-height: 180px;
+    max-height: 45dvh;
 
-    min-height: 210px !important;
+    margin: 10px 16px 14px;
 
-    box-sizing: border-box !important;
+    padding: 13px;
 
-    resize: vertical !important;
+    box-sizing: border-box;
 
-    padding: 13px !important;
+    resize: vertical;
 
-    border:
-        1px solid #3a3a3a !important;
+    border: 1px solid rgba(255, 255, 255, 0.12);
 
-    border-radius: 12px !important;
+    border-radius: 12px;
 
-    outline: none !important;
+    outline: none;
 
-    background: #191919 !important;
+    background: #080808;
 
-    color: #f5f5f5 !important;
+    color: #f5f5f5;
 
     font-family:
         -apple-system,
         BlinkMacSystemFont,
+        "SF Pro Display",
         "SF Pro Text",
-        sans-serif !important;
+        sans-serif;
 
-    font-size: 16px !important;
+    font-size: 15px;
 
-    line-height: 1.45 !important;
+    line-height: 1.5;
 
+    -webkit-appearance: none;
 }
 
-
-#oocinstruction-text:focus {
-
-    border-color: #777 !important;
-
+#ooc-instruction-textarea:focus {
+    border-color: rgba(255, 255, 255, 0.28);
 }
 
-
-/* ==========================================================
-   CHECKBOX
-   ========================================================== */
-
-.oocinstruction-persistent {
-
-    display: flex !important;
-
-    align-items: center !important;
-
-    gap: 9px !important;
-
-    margin:
-        13px 2px !important;
-
-    color: #ddd !important;
-
-    font-size: 14px !important;
-
-}
-
-
-.oocinstruction-persistent input {
-
-    width: 18px !important;
-
-    height: 18px !important;
-
-    margin: 0 !important;
-
+#ooc-instruction-textarea::placeholder {
+    color: #666;
 }
 
 
 /* ==========================================================
-   BUTTONS
+   FOOTER
    ========================================================== */
 
-.oocinstruction-buttons {
+.ooc-instruction-footer {
+    display: flex;
 
-    display: flex !important;
+    align-items: center;
 
-    justify-content: flex-end !important;
+    gap: 8px;
 
-    gap: 9px !important;
+    padding: 12px 16px 16px;
 
-    margin-top: 10px !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
 
+.ooc-instruction-footer button {
+    min-height: 40px;
+
+    padding: 0 15px;
+
+    border: 0;
+
+    border-radius: 10px;
+
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "SF Pro Display",
+        "SF Pro Text",
+        sans-serif;
+
+    font-size: 14px;
+
+    cursor: pointer;
+
+    transition:
+        opacity 0.15s ease,
+        background-color 0.15s ease;
+}
+
+.ooc-instruction-footer button:active {
+    opacity: 0.65;
 }
 
 
-.oocinstruction-buttons button {
+/* ==========================================================
+   CLEAR
+   ========================================================== */
 
-    min-height: 42px !important;
+.ooc-instruction-clear {
+    margin-right: auto;
 
-    padding:
-        8px 18px !important;
+    background: transparent;
 
-    border:
-        1px solid #3a3a3a !important;
+    color: #999;
+}
 
-    border-radius: 10px !important;
+.ooc-instruction-clear:hover {
+    background: rgba(255, 255, 255, 0.06);
 
-    font: inherit !important;
-
-    font-weight: 700 !important;
-
+    color: #ddd;
 }
 
 
-#oocinstruction-clear {
+/* ==========================================================
+   CANCEL
+   ========================================================== */
 
-    background: #222 !important;
+.ooc-instruction-cancel {
+    background: #242424;
 
-    color: #fff !important;
+    color: #ddd;
+}
 
+.ooc-instruction-cancel:hover {
+    background: #303030;
 }
 
 
-#oocinstruction-apply {
+/* ==========================================================
+   SAVE
+   ========================================================== */
 
-    background: #eee !important;
+.ooc-instruction-save {
+    background: #f5f5f5;
 
-    border-color: #eee !important;
+    color: #000;
 
-    color: #111 !important;
+    font-weight: 600;
+}
 
+.ooc-instruction-save:hover {
+    background: #ffffff;
 }
 
 
@@ -318,42 +310,62 @@
 
 @media (max-width: 600px) {
 
-    .oocinstruction-modal {
+    #ooc-instruction-modal {
+        align-items: flex-end;
 
-        align-items:
-            flex-end !important;
-
-        padding: 10px !important;
-
+        padding:
+            10px
+            10px
+            max(10px, env(safe-area-inset-bottom));
     }
 
+    .ooc-instruction-box {
+        width: 100%;
 
-    .oocinstruction-box {
+        max-height: 88dvh;
 
-        width: 100% !important;
-
-        max-height: 88vh !important;
-
-        border-radius:
-            16px 16px 10px 10px !important;
-
+        border-radius: 18px 18px 12px 12px;
     }
 
+    #ooc-instruction-textarea {
+        min-height: 170px;
 
-    #oocinstruction-text {
+        max-height: 42dvh;
 
-        min-height: 190px !important;
-
+        font-size: 16px;
     }
 
-
-    .oocinstruction-buttons {
-
-        display: grid !important;
-
-        grid-template-columns:
-            1fr 1fr !important;
-
+    .ooc-instruction-footer {
+        padding-bottom:
+            max(
+                14px,
+                env(safe-area-inset-bottom)
+            );
     }
 
+    .ooc-instruction-footer button {
+        min-height: 44px;
+
+        padding-left: 14px;
+        padding-right: 14px;
+    }
+}
+
+
+/* ==========================================================
+   VERY SMALL SCREENS
+   ========================================================== */
+
+@media (max-width: 380px) {
+
+    .ooc-instruction-footer {
+        gap: 5px;
+    }
+
+    .ooc-instruction-footer button {
+        padding-left: 10px;
+        padding-right: 10px;
+
+        font-size: 13px;
+    }
 }

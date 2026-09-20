@@ -5,13 +5,14 @@
 
 
 /* ==========================================================
-   BOUTON DANS LE MENU ☰
+   BOUTON OOC DANS LE MENU ☰
    ========================================================== */
 
 #ooc-instruction-menu-item {
     display: flex !important;
 
     align-items: center;
+    justify-content: flex-start;
 
     width: 100%;
     min-height: 36px;
@@ -46,35 +47,42 @@
 
 #ooc-instruction-menu-item:hover {
     opacity: 1;
+
+    background:
+        rgba(255, 255, 255, 0.08);
+}
+
+#ooc-instruction-menu-item:active {
+    opacity: 0.7;
 }
 
 #ooc-instruction-menu-item i {
     width: 20px;
     min-width: 20px;
 
+    height: 20px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
     text-align: center;
 
     pointer-events: none;
+
+    font-size: 17px;
 }
 
 #ooc-instruction-menu-item span {
     pointer-events: none;
+
+    white-space: nowrap;
 }
 
 
 /* ==========================================================
-   SÉCURITÉ :
-   SI UNE ANCIENNE VERSION A LAISSÉ UN BOUTON EN DEHORS
-   DU MENU, ON LE CACHE.
-   ========================================================== */
-
-#options > #ooc-instruction-menu-item {
-    display: none !important;
-}
-
-
-/* ==========================================================
-   MODAL
+   MODAL OOC
    ========================================================== */
 
 #ooc-instruction-modal {
@@ -98,19 +106,14 @@
 
     display: flex !important;
 
-    /*
-     * IMPORTANT :
-     * On ne centre PLUS verticalement.
-     * Le panneau est placé volontairement plus bas.
-     */
-
     align-items: flex-start !important;
 
     justify-content: center !important;
 
     overflow: hidden !important;
 
-    background: rgba(0, 0, 0, 0.72);
+    background:
+        rgba(0, 0, 0, 0.72);
 
     -webkit-backdrop-filter: blur(8px);
     backdrop-filter: blur(8px);
@@ -118,20 +121,18 @@
 
 
 /* ==========================================================
-   FENÊTRE OOC
+   FENÊTRE
    ========================================================== */
 
 .ooc-instruction-box {
 
     position: relative !important;
 
-    width: min(560px, calc(100vw - 24px)) !important;
-
-    /*
-     * ESPACE EN HAUT :
-     * empêche la fenêtre de se retrouver collée
-     * ou coupée par la barre iPhone.
-     */
+    width:
+        min(
+            560px,
+            calc(100vw - 24px)
+        ) !important;
 
     margin-top:
         max(
@@ -143,6 +144,7 @@
 
     margin-left: auto !important;
     margin-right: auto !important;
+
     margin-bottom: 20px !important;
 
     max-height:
@@ -175,7 +177,7 @@
 
 
 /* ==========================================================
-   TITRE
+   HEADER
    ========================================================== */
 
 .ooc-instruction-header {
@@ -193,7 +195,7 @@
 
     border-bottom:
         1px solid
-        rgba(255,255,255,0.08);
+        rgba(255, 255, 255, 0.08);
 }
 
 .ooc-instruction-title {
@@ -203,11 +205,13 @@
     font-weight: 600;
 
     color: #f5f5f5;
+
+    line-height: 1.2;
 }
 
 
 /* ==========================================================
-   BOUTON X
+   BOUTON FERMER
    ========================================================== */
 
 .ooc-instruction-close {
@@ -239,9 +243,14 @@
 .ooc-instruction-close:hover {
 
     background:
-        rgba(255,255,255,0.08);
+        rgba(255, 255, 255, 0.08);
 
     color: #fff;
+}
+
+.ooc-instruction-close:active {
+
+    opacity: 0.6;
 }
 
 
@@ -290,7 +299,7 @@
 
     border:
         1px solid
-        rgba(255,255,255,0.12);
+        rgba(255, 255, 255, 0.12);
 
     border-radius: 12px;
 
@@ -312,12 +321,18 @@
     line-height: 1.5;
 
     -webkit-appearance: none;
+
+    appearance: none;
 }
 
 #ooc-instruction-textarea:focus {
 
     border-color:
-        rgba(255,255,255,0.3);
+        rgba(255, 255, 255, 0.30);
+
+    box-shadow:
+        0 0 0 1px
+        rgba(255, 255, 255, 0.08);
 }
 
 #ooc-instruction-textarea::placeholder {
@@ -345,12 +360,12 @@
 
     border-top:
         1px solid
-        rgba(255,255,255,0.08);
+        rgba(255, 255, 255, 0.08);
 }
 
 
 /* ==========================================================
-   BOUTONS
+   BOUTONS FOOTER
    ========================================================== */
 
 .ooc-instruction-footer button {
@@ -373,8 +388,24 @@
 
     font-size: 14px;
 
+    line-height: 1;
+
     cursor: pointer;
+
+    -webkit-appearance: none;
+
+    appearance: none;
 }
+
+.ooc-instruction-footer button:active {
+
+    opacity: 0.65;
+}
+
+
+/* ==========================================================
+   EFFACER
+   ========================================================== */
 
 .ooc-instruction-clear {
 
@@ -385,12 +416,35 @@
     color: #999;
 }
 
+.ooc-instruction-clear:hover {
+
+    background:
+        rgba(255, 255, 255, 0.06);
+
+    color: #ddd;
+}
+
+
+/* ==========================================================
+   ANNULER
+   ========================================================== */
+
 .ooc-instruction-cancel {
 
     background: #292929;
 
     color: #ddd;
 }
+
+.ooc-instruction-cancel:hover {
+
+    background: #353535;
+}
+
+
+/* ==========================================================
+   ENREGISTRER
+   ========================================================== */
 
 .ooc-instruction-save {
 
@@ -399,6 +453,11 @@
     color: #000;
 
     font-weight: 600;
+}
+
+.ooc-instruction-save:hover {
+
+    background: #ffffff;
 }
 
 
@@ -410,16 +469,15 @@
 
     #ooc-instruction-modal {
 
-        /*
-         * SUR IPHONE :
-         * fenêtre descendue sous la barre supérieure.
-         */
-
         align-items: flex-start !important;
 
+        justify-content: center !important;
+
         padding:
-            0 10px
-            env(safe-area-inset-bottom) 10px !important;
+            0
+            10px
+            env(safe-area-inset-bottom)
+            10px !important;
     }
 
 
@@ -428,11 +486,6 @@
         width:
             calc(100vw - 20px) !important;
 
-        /*
-         * C'EST CETTE VALEUR QUI ÉVITE
-         * QUE LE HAUT SOIT COUPÉ.
-         */
-
         margin-top:
             max(
                 75px,
@@ -440,6 +493,9 @@
                     env(safe-area-inset-top) + 55px
                 )
             ) !important;
+
+        margin-left: 0 !important;
+        margin-right: 0 !important;
 
         max-height:
             calc(
@@ -450,11 +506,31 @@
     }
 
 
+    .ooc-instruction-header {
+
+        padding:
+            13px 14px;
+    }
+
+
+    .ooc-instruction-description {
+
+        padding:
+            10px 14px 5px;
+    }
+
+
     #ooc-instruction-textarea {
+
+        width:
+            calc(100% - 28px) !important;
 
         min-height: 140px;
 
         max-height: 35dvh;
+
+        margin:
+            10px 14px 12px !important;
 
         font-size: 16px;
     }
@@ -462,7 +538,8 @@
 
     .ooc-instruction-footer {
 
-        padding-bottom:
+        padding:
+            10px 14px
             max(
                 14px,
                 env(safe-area-inset-bottom)
@@ -472,7 +549,7 @@
 
 
 /* ==========================================================
-   PETIT IPHONE
+   PETITS ÉCRANS
    ========================================================== */
 
 @media (max-width: 380px) {
@@ -488,10 +565,12 @@
             ) !important;
     }
 
+
     .ooc-instruction-footer {
 
         gap: 5px;
     }
+
 
     .ooc-instruction-footer button {
 
@@ -499,5 +578,31 @@
             0 10px;
 
         font-size: 13px;
+    }
+}
+
+
+/* ==========================================================
+   ÉCRANS TRÈS BAS
+   ========================================================== */
+
+@media (max-height: 650px) {
+
+    .ooc-instruction-box {
+
+        margin-top: 55px !important;
+
+        max-height:
+            calc(
+                100dvh - 70px
+            ) !important;
+    }
+
+
+    #ooc-instruction-textarea {
+
+        min-height: 110px;
+
+        max-height: 30dvh;
     }
 }

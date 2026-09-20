@@ -1,0 +1,13 @@
+{
+    "display_name": "OOC Instruction",
+    "loading_order": 95,
+    "requires": [],
+    "optional": [],
+    "generate_interceptor": "ooc_instruction_interceptor",
+    "js": "index.js",
+    "css": "style.css",
+    "author": "Hydra",
+    "version": "1.0.0",
+    "homePage": "",
+    "auto_update": false
+}
